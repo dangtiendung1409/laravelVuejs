@@ -2,7 +2,11 @@ import './bootstrap'
 import {createApp} from "vue"
 import { createPinia } from 'pinia'
 import router from "../../routes/index.js"
+import axios from 'axios'
+window.axios = axios;
 import {
+    Table,
+    Card,
     Menu,
     List,
     Drawer,
@@ -20,6 +24,8 @@ const pinia = createPinia()
 
 app.use(pinia)
 app.use(router);
+app.use(Table);
+app.use(Card);
 app.use(Menu);
 app.use(List);
 app.use(Button);
