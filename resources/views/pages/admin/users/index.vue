@@ -1,8 +1,18 @@
 <template>
     <a-card title="Tài khoản" style="width: 100%">
+       <div class="row mb-3">
+        <div class="col 12 d-flex justify-content-end">
+            <a-button type="primary">
+                <router-link :to="{name: 'admin-users-create'}">
+                <i class="fa-solid fa-plus"></i>
+                </router-link>
+            </a-button>
+        </div>
+       </div>
+
         <div class="row">
             <div class="col-12">
-                <a-table :dataSource="users" :columns="columns">
+                <a-table :dataSource="users" :columns="columns" :scroll="{ x: 576 }">
                     <template #bodyCell="{ column, index, record }">
                         <template v-if="column.key === 'index'">
                             <span>{{ index + 1 }}</span>
@@ -19,6 +29,7 @@
     </a-card>
 </template>
 <script setup>
+
 import { ref} from "vue";
 import { useStore } from '../../../stores/use-menu.js';
 import axios from 'axios';
@@ -54,6 +65,7 @@ const columns = [
         title: "Phòng ban",
         dataIndex: "departments",
         key: "departments",
+        // responsive: ['md'], // ẩn cột khi ở thiết bị moblie
     },
     {
         title: "Vai trò",
@@ -67,6 +79,7 @@ const columns = [
     {
         title: "Công cụ",
         key: "action",
+        fixed: "right",
     },
 ];
 
