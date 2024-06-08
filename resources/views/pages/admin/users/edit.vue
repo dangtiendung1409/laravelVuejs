@@ -1,6 +1,6 @@
 <template>
-    <form @submit.prevent="createUsers">
-        <a-card title="Tạo mới tài khoản" style="width: 100%">
+    <form @submit.prevent="updateUsers()">
+        <a-card title="Cập nhật tài khoản" style="width: 100%">
             <div class="row mb-3">
                 <div class="col-12 col-sm-4">
                     <div class="row">
@@ -20,13 +20,12 @@
                     </div>
                 </div>
                 <div class="col-12 col-sm-8">
+                    <!-- Other fields -->
                     <div class="row mb-3">
                         <div class="col-12 col-sm-3 text-start text-sm-end">
                             <label>
                                 <span class="text-danger me-1">*</span>
-                                <span :class="{'text-danger': errors.status_id }">
-                                    Tình trạng:
-                                </span>
+                                <span :class="{'text-danger': errors.status_id }">Tình trạng:</span>
                             </label>
                         </div>
                         <div class="col-12 col-sm-5">
@@ -44,13 +43,12 @@
                             <small v-if="errors.status_id" class="text-danger">{{errors.status_id[0]}}</small>
                         </div>
                     </div>
+                    <!-- Other fields -->
                     <div class="row mb-3">
                         <div class="col-12 col-sm-3 text-start text-sm-end">
                             <label>
                                 <span class="text-danger me-1">*</span>
-                                <span :class="{'text-danger': errors.username }">
-                                    Tên tài khoản:
-                                </span>
+                                <span :class="{'text-danger': errors.username }">Tên tài khoản:</span>
                             </label>
                         </div>
                         <div class="col-12 col-sm-5">
@@ -128,13 +126,20 @@
                             <small v-if="errors.department_id" class="text-danger">{{errors.department_id[0]}}</small>
                         </div>
                     </div>
+                    <!-- Other fields -->
                     <div class="row mb-3">
+                        <div class="col-12 col-sm-3 text-start text-sm-end"></div>
+                        <div class="col-12 col-sm-5">
+                            <a-checkbox v-model:checked="users.change_password">
+                                Đổi mật khẩu
+                            </a-checkbox>
+                        </div>
+                    </div>
+                    <div class="row mb-3" v-if="users.change_password">
                         <div class="col-12 col-sm-3 text-start text-sm-end">
                             <label>
                                 <span class="text-danger me-1">*</span>
-                                <span :class="{'text-danger': errors.password }">
-                                    Mật khẩu:
-                                </span>
+                                <span :class="{'text-danger': errors.password }">Mật khẩu:</span>
                             </label>
                         </div>
                         <div class="col-12 col-sm-5">
@@ -148,13 +153,11 @@
                             <small v-if="errors.password" class="text-danger">{{errors.password[0]}}</small>
                         </div>
                     </div>
-                    <div class="row mb-3">
+                    <div class="row mb-3" v-if="users.change_password">
                         <div class="col-12 col-sm-3 text-start text-sm-end">
                             <label>
                                 <span class="text-danger me-1">*</span>
-                                <span :class="{'text-danger': errors.password_confirmation }">
-                                    Xác nhận mật khẩu:
-                                </span>
+                                <span :class="{'text-danger': errors.password_confirmation }">Xác nhận mật khẩu:</span>
                             </label>
                         </div>
                         <div class="col-12 col-sm-5">
@@ -168,6 +171,31 @@
                             <small v-if="errors.password_confirmation" class="text-danger">{{errors.password_confirmation[0]}}</small>
                         </div>
                     </div>
+                    <div class="row mb-3" >
+                        <div class="col-12 col-sm-3 text-start text-sm-end">
+                           <label>
+                               <span>đăng nhập gần đây: </span>
+                           </label>
+                        </div>
+                        <div class="col-12 col-sm-5">
+                           <span>
+                              {{ users.login_at }}
+                           </span>
+                        </div>
+                    </div>
+                    <div class="row mb-3" >
+                        <div class="col-12 col-sm-3 text-start text-sm-end">
+                            <label>
+                                <span>đổi mật khẩu gần đây: </span>
+                            </label>
+                        </div>
+                        <div class="col-12 col-sm-5">
+                           <span>
+                              {{ users.change_password_at }}
+                           </span>
+                        </div>
+                    </div>
+                    <!-- Other fields -->
                 </div>
             </div>
             <div class="row">
@@ -185,15 +213,16 @@
         </a-card>
     </form>
 </template>
-
 <script setup>
 import { ref, reactive } from "vue";
 import { message } from 'ant-design-vue';
-import {useRouter} from "vue-router";
+import { useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import { useStore } from '../../../stores/use-menu.js';
 import axios from 'axios';
 
 const router = useRouter();
+const route = useRoute();
 const $store = useStore();
 const data = ref({ users_status: [], departments: [] });
 
@@ -204,30 +233,45 @@ const users = reactive({
     password: "",
     password_confirmation: "",
     department_id: null, // Single value
-    status_id: null // Single value
+    status_id: null, // Single value
+    change_password: false,
+    login_at: "",
+    change_password_at: ""
 });
+
 
 const errors = ref({});
 
-const getUsersCreate = async () => {
+const getUsersEdit = async () => {
     try {
-        const response = await axios.get('http://127.0.0.1:8000/api/users/create');
+        const response = await axios.get(`http://127.0.0.1:8000/api/users/${route.params.id}/edit`);
+        console.log(response);
+        users.status_id = response.data.users.status_id;
+        users.username = response.data.users.username;
+        users.name = response.data.users.name;
+        users.email = response.data.users.email;
+        users.department_id = response.data.users.department_id;
+
+        response.data.users.login_at
+            ? users.login_at = response.data.users.login_at
+            : users.login_at = "Chưa có lượt đăng nhập gần đây"
+        response.data.users.change_password_at
+            ? users.change_password_at = response.data.users.change_password_at
+            : users.change_password_at = "Chưa có lượt đổi mật khẩu gần đây "
+
         data.value.users_status = response.data.users_status;
         data.value.departments = response.data.departments;
-        console.log('Combined Data:', data.value);
+
     } catch (error) {
         console.error(error);
-        errors.value = error.response.data.errors;
     }
 };
-
 const filterOption = (input, option) => {
     return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
 };
-
-const createUsers = async () => {
+const updateUsers = async () => {
     try {
-        const response = await axios.post('http://127.0.0.1:8000/api/users', users);
+        const response = await axios.put(`http://127.0.0.1:8000/api/users/${route.params.id}`, users);
         // console.log(response);
         // Reset đối tượng errors
         errors.value = {};
@@ -236,13 +280,14 @@ const createUsers = async () => {
             router.push({name: "admin-users"});
         }
     } catch (error) {
-        // console.error(error);
         errors.value = error.response.data.errors;
     }
 };
 
+getUsersEdit();
 
-getUsersCreate();
+
+
 </script>
 <style>
 .select-danger {
