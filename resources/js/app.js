@@ -6,6 +6,7 @@ import axios from 'axios'
 window.axios = axios;
 import {
     Select,
+    Pagination,
     Checkbox,
     Input,
     Avatar,
@@ -29,6 +30,7 @@ const pinia = createPinia()
 
 app.use(pinia)
 app.use(router);
+app.use(Pagination);
 app.use(Checkbox);
 app.use(Input);
 app.use(Select);

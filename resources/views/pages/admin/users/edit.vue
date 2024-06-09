@@ -218,6 +218,7 @@ import { ref, reactive } from "vue";
 import { message } from 'ant-design-vue';
 import { useRouter } from "vue-router";
 import { useRoute } from "vue-router";
+import dayjs from "dayjs";
 import { useStore } from '../../../stores/use-menu.js';
 import axios from 'axios';
 
@@ -253,11 +254,11 @@ const getUsersEdit = async () => {
         users.department_id = response.data.users.department_id;
 
         response.data.users.login_at
-            ? users.login_at = response.data.users.login_at
-            : users.login_at = "Chưa có lượt đăng nhập gần đây"
+            ? (users.login_at = dayjs(response.data.users.login_at).format('DD/MM/YYYY - HH:mm'))
+            : (users.login_at = "Chưa có lượt đăng nhập gần đây");
         response.data.users.change_password_at
-            ? users.change_password_at = response.data.users.change_password_at
-            : users.change_password_at = "Chưa có lượt đổi mật khẩu gần đây "
+            ? (users.change_password_at = dayjs(response.data.users.change_password_at).format('DD/MM/YYYY - HH:mm'))
+            : (users.change_password_at = "Chưa có lượt đổi mật khẩu gần đây ");
 
         data.value.users_status = response.data.users_status;
         data.value.departments = response.data.departments;
@@ -275,8 +276,8 @@ const updateUsers = async () => {
         // console.log(response);
         // Reset đối tượng errors
         errors.value = {};
-        if (response) {
-            message.success('This is a success message');
+        if (response.status == 200) {
+            message.success('Cập nhật tài khoản thành công');
             router.push({name: "admin-users"});
         }
     } catch (error) {

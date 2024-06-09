@@ -21,9 +21,12 @@ class UserController extends Controller
                 'departments.name as departments',
                 'users_status.name as status'
             )
+            ->where('users.id', '<>', 1)
             ->get();
+
         return response()->json($users);
     }
+
 
     public function create()
     {
@@ -123,6 +126,14 @@ class UserController extends Controller
              "email.email" => "Email không hợp lệ",
              "department_id.required" => "Nhập phòng ban"
          ]);
+         User::find($id)->update([
+             "status_id" => $request["status_id"],
+             "username" => $request["username"],
+             "name" => $request["name"],
+             "email" => $request["email"],
+             "department_id" => $request["department_id"]
+
+         ]);
          if($request["change_password"] == true)
          {
              $validated = $request->validate([
@@ -131,7 +142,14 @@ class UserController extends Controller
                  "password.required" => "Nhập mật khẩu",
                  "password.confirmed" => "Mật khẩu và xác nhận mật khẩu không khớp",
              ]);
+             User::find($id)->update([
+                 "password" => \Hash::make($request["password"]),
+                 "change_password_at" => NOW()
+                ]);
          }
+     }
+     public function destroy($id) {
+          User::find($id)->delete();
      }
 }
 

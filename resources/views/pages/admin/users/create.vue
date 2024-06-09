@@ -12,10 +12,11 @@
                             </a-avatar>
                         </div>
                         <div class="col-12 d-flex justify-content-center">
-                            <a-button type="primary">
+                            <a-button type="primary" @click="selectImage">
                                 <i class="fa-solid fa-plus me-2"></i>
                                 <span>chọn ảnh</span>
                             </a-button>
+                            <input type="file" ref="fileInput" @change="handleFileChange" style="display: none;">
                         </div>
                     </div>
                 </div>
@@ -231,8 +232,8 @@ const createUsers = async () => {
         // console.log(response);
         // Reset đối tượng errors
         errors.value = {};
-        if (response) {
-            message.success('This is a success message');
+        if (response.status == 200) {
+            message.success('Tạo tài khoản thành công');
             router.push({name: "admin-users"});
         }
     } catch (error) {
