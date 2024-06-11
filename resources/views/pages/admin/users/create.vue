@@ -1,5 +1,5 @@
 <template>
-    <form @submit.prevent="createUsers">
+    <form @submit.prevent="createUsers" enctype="multipart/form-data">
         <a-card title="Tạo mới tài khoản" style="width: 100%">
             <div class="row mb-3">
                 <div class="col-12 col-sm-4">
@@ -7,7 +7,7 @@
                         <div class="col-12 d-flex justify-content-center mb-3">
                             <a-avatar shape="square" :size="200">
                                 <template #icon>
-                                    <img src="../../../../img/user.jpeg" alt="Avatar">
+                                    <img :src="avatarSrc" alt="Avatar">
                                 </template>
                             </a-avatar>
                         </div>
@@ -21,6 +21,7 @@
                     </div>
                 </div>
                 <div class="col-12 col-sm-8">
+                    <!-- Các phần form khác -->
                     <div class="row mb-3">
                         <div class="col-12 col-sm-3 text-start text-sm-end">
                             <label>
@@ -188,9 +189,9 @@
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { message } from 'ant-design-vue';
-import {useRouter} from "vue-router";
+import { useRouter } from "vue-router";
 import { useStore } from '../../../stores/use-menu.js';
 import axios from 'axios';
 
@@ -210,6 +211,12 @@ const users = reactive({
 
 const errors = ref({});
 
+// Đường dẫn hình ảnh mặc định
+const defaultAvatar = "../../../../img/user.jpeg";
+const avatarSrc = ref(defaultAvatar);
+
+const fileInput = ref(null);
+
 const getUsersCreate = async () => {
     try {
         const response = await axios.get('http://127.0.0.1:8000/api/users/create');
@@ -228,23 +235,51 @@ const filterOption = (input, option) => {
 
 const createUsers = async () => {
     try {
-        const response = await axios.post('http://127.0.0.1:8000/api/users', users);
-        // console.log(response);
-        // Reset đối tượng errors
+        const formData = new FormData();
+        formData.append('avatar', fileInput.value.files[0]); // Gửi file ảnh
+
+        // Gửi dữ liệu người dùng và file ảnh lên server
+        const response = await axios.post('http://127.0.0.1:8000/api/users', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            },
+            params: users
+        });
         errors.value = {};
         if (response.status == 200) {
             message.success('Tạo tài khoản thành công');
             router.push({name: "admin-users"});
         }
+        // Xử lý kết quả
     } catch (error) {
-        // console.error(error);
         errors.value = error.response.data.errors;
     }
 };
 
 
-getUsersCreate();
+const selectImage = () => {
+    fileInput.value.click();
+};
+
+const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            avatarSrc.value = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    } else {
+        avatarSrc.value = defaultAvatar;
+    }
+};
+
+onMounted(() => {
+    avatarSrc.value = defaultAvatar;
+    getUsersCreate();
+});
 </script>
+
 <style>
 .select-danger {
     border: 1px solid red;

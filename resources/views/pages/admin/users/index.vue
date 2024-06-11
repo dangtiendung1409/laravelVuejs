@@ -17,7 +17,9 @@
                         <template v-if="column.key === 'id'">
                             <span>{{ record.id }}</span>
                         </template>
-
+                        <template v-if="column.key === 'avatar'">
+                            <img :src="`/` + record.avatar" alt="Avatar" style="width: 70px; height: 70px;" />
+                        </template>
                         <template v-if="column.key === 'status'">
                             <span v-if="record.status_id == 1" class="text-primary">{{ record.status }}</span>
                             <span v-else-if="record.status_id == 2" class="text-danger">{{ record.status }}</span>
