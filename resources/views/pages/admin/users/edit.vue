@@ -172,7 +172,30 @@
                             <small v-if="errors.password_confirmation" class="text-danger">{{errors.password_confirmation[0]}}</small>
                         </div>
                     </div>
-                    <!-- Các trường khác -->
+                    <div class="row mb-3" >
+                        <div class="col-12 col-sm-3 text-start text-sm-end">
+                            <label>
+                                <span>đăng nhập gần đây: </span>
+                            </label>
+                        </div>
+                        <div class="col-12 col-sm-5">
+                           <span>
+                              {{ users.login_at }}
+                           </span>
+                        </div>
+                    </div>
+                    <div class="row mb-3" >
+                        <div class="col-12 col-sm-3 text-start text-sm-end">
+                            <label>
+                                <span>đổi mật khẩu gần đây: </span>
+                            </label>
+                        </div>
+                        <div class="col-12 col-sm-5">
+                           <span>
+                              {{ users.change_password_at }}
+                           </span>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="row mt-5">
